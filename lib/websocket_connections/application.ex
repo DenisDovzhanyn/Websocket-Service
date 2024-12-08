@@ -19,7 +19,6 @@ defmodule WebsocketConnections.Application do
       # Start to serve requests, typically the last entry
       WebsocketConnectionsWeb.Endpoint,
       WebsocketConnectionsWeb.RabbitMq,
-      WebsocketConnectionsWeb.MessageConsumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,4 +1,4 @@
-defmodule Chattr.Accounts.Users do
+defmodule WebsocketConnections.Accounts.Users do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -10,7 +10,7 @@ defmodule Chattr.Accounts.Users do
     field :temp_password, :string, virtual: true
     field :display_name, :string
 
-    many_to_many :chats, Chattr.Chats.Chat, join_through: "user_chats"
+    many_to_many :chats, WebsocketConnections.Chats.Chat.Chats.Chat, join_through: "user_chats"
 
     @timestamps_opts [type: :utc_datetime, inserted_at: false, updated_at: false]
   end

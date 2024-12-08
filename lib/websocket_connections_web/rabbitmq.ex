@@ -11,10 +11,11 @@ defmodule WebsocketConnectionsWeb.RabbitMq do
   def init(_) do
     {:ok, conn} = Connection.open("amqp://guest:guest@localhost")
     {:ok, channel} = Channel.open(conn)
-    :ok = Exchange.declare(channel, "message_exchange", :fanout, durable: true)
-    
+
     Logger.info("rabbitmq genserver started")
-    {:ok, %{conn: conn, channel: channel}}
+    {:ok, %{queue: queue}} = AMQP.Queue.declare(channel, "worker_queue", durable: true)
+
+    {:ok, %{conn: conn, channel: channel, queue: queue}}
   end
 
   def get_channel do
@@ -22,8 +23,8 @@ defmodule WebsocketConnectionsWeb.RabbitMq do
   end
 
   @impl true
-  def handle_call(:get_channel, _from, %{channel: channel} = state) do
-    {:reply, channel, state}
+  def handle_call(:get_channel, _from, %{channel: channel, queue: queue} = state) do
+    {:reply, {channel, queue}, state}
   end
 
   @impl true

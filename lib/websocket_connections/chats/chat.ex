@@ -5,7 +5,7 @@ defmodule WebsocketConnections.Chats.Chat do
   @derive {Jason.Encoder, only: [:id]}
   schema "chats" do
     field :last_msg_time, :utc_datetime
-    many_to_many :users, Chattr.Accounts.Users, join_through: "user_chats"
+    many_to_many :users, WebsocketConnections.Accounts.Users.Accounts.Users, join_through: "user_chats"
     @timestamps_opts [type: :utc_datetime, inserted_at: false, updated_at: false]
   end
 

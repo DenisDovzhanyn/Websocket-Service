@@ -7,8 +7,8 @@ defmodule WebsocketConnections.Messages.Message do
 
   schema "messages" do
     field :content, :string
-    belongs_to :chat, Chattr.Chats.Chat
-    belongs_to :user, Chattr.Accounts.Users
+    belongs_to :chat, WebsocketConnections.Chats.Chat.Chats.Chat
+    belongs_to :user, WebsocketConnections.Accounts.Users.Accounts.Users
 
     timestamps(type: :utc_datetime)
 

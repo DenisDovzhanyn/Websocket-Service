@@ -19,9 +19,9 @@ defmodule WebsocketConnectionsWeb.ChatChannel do
   def handle_in("new_msg", %{"content" => content}, socket) do
     message = %{"content" => content, "user_id" => socket.assigns["user_id"], "chat_id" => socket.assigns["chat_id"]}
 
-    channel = WebsocketConnectionsWeb.RabbitMq.get_channel()
+    {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_message_channel()
 
-    case AMQP.Basic.publish(channel, "message_exchange", "", Jason.encode!(message)) do
+    case AMQP.Basic.publish(channel, "", queue, Jason.encode!(message)) do
       :ok ->
         {:noreply, socket}
 
@@ -34,7 +34,18 @@ defmodule WebsocketConnectionsWeb.ChatChannel do
   # maybe instead of storing a list of users and chats they are connected to, we just store a ets table of users that are online?
 
   def handle_in("send_key", %{"key" => key, "user_id" => recipient}, socket) do
-      push(socket, "new_key", %{"chat_id" => socket.assigns["chat_id"], "key" => key})
+      key = %{"key" => key, "recipient" => recipient}
+
+      {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_key_channel()
+
+      case AMQP.Basic.publish(channel, "key_exchange", "user_#{recipient}", Jason.encode!(key)) do
+        :ok ->
+          {:noreply, socket}
+
+        {:error, reason} ->
+          Logger.error("Failed to publish key #{inspect(reason)}")
+          {:reply, {:error, %{"error" => "Key not sent"}}, socket}
+      end
   end
 
   # this is an initial call that the client will make to fetch all keys waiting if any
