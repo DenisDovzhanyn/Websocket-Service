@@ -1,18 +1,29 @@
-# WebsocketConnections
+### **WebSocket Connections**
 
-To start your Phoenix server:
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+# WebSocket Connections
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+The WebSocket Connections service is responsible for handling real-time communication between clients and the backend. This service allows users to subscribe to their chats and ensures messages are sent and broadcasted efficiently.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Features
 
-## Learn more
+- **WebSocket Connections**: Users connect to a WebSocket after authentication.
+- **Chat Subscriptions**: Users subscribe to specific chats to receive messages.
+- **Message Processing**:
+  - Messages sent by users are placed onto a RabbitMQ message queue.
+  - A worker service processes the messages and routes them back to a WebSocket Connections service for broadcasting.
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+## Tech Stack
+
+- **WebSockets**: Real-time communication protocol.
+- **RabbitMQ**: Message queue for handling chat messages.
+- **Phoenix Framework**: WebSocket support and application server.
+
+## Flow
+
+1. User logs in via api to receive JWT token and then establishes a WebSocket connection via this service.
+2. User subscribes to their chats via the WebSocket.
+3. Messages sent by the user are:
+   - Published to a RabbitMQ queue.
+   - Retrieved and processed by a worker service.
+   - Sent back to a WebSocket Connectoin service to be broadcasted to other connected clients.
