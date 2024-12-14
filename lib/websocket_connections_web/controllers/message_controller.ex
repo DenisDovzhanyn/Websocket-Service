@@ -14,6 +14,20 @@ defmodule WebsocketConnectionsWeb.MessageController do
         put_status(conn, :error)
         |> json(%{errors: reason})
     end
-
   end
+
+  def send_request_to_user(conn, request) do
+    chat_id = request["request"]["chat_id"]
+    case WebsocketConnectionsWeb.Endpoint.broadcast("chat:#{chat_id}", "request_key", request) do
+      :ok ->
+        put_status(conn, :ok)
+        |> json("request sent")
+
+      {:error, reason} ->
+        put_status(conn, :error)
+        |> json(%{errors: reason})
+    end
+  end
+
+
 end

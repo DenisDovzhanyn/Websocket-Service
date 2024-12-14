@@ -19,7 +19,7 @@ defmodule WebsocketConnectionsWeb.ChatChannel do
   def handle_in("new_msg", %{"content" => content}, socket) do
     message = %{"content" => content, "user_id" => socket.assigns["user_id"], "chat_id" => socket.assigns["chat_id"]}
 
-    {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_message_channel()
+    {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_channel()
 
     case AMQP.Basic.publish(channel, "", queue, Jason.encode!(message)) do
       :ok ->
@@ -33,18 +33,18 @@ defmodule WebsocketConnectionsWeb.ChatChannel do
 
   # maybe instead of storing a list of users and chats they are connected to, we just store a ets table of users that are online?
 
-  def handle_in("send_key", %{"key" => key, "user_id" => recipient}, socket) do
-      key = %{"key" => key, "recipient" => recipient}
+  def handle_in("request_key", _, socket) do
+      request = %{"chat_id" => socket.assigns["chat_id"], "recipient" => socket.assigns["user_id"]}
 
-      {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_key_channel()
+      {channel, queue} = WebsocketConnectionsWeb.RabbitMq.get_channel()
 
-      case AMQP.Basic.publish(channel, "key_exchange", "user_#{recipient}", Jason.encode!(key)) do
+      case AMQP.Basic.publish(channel, "", queue, Jason.encode!(request)) do
         :ok ->
           {:noreply, socket}
 
         {:error, reason} ->
-          Logger.error("Failed to publish key #{inspect(reason)}")
-          {:reply, {:error, %{"error" => "Key not sent"}}, socket}
+          Logger.error("Failed to request key #{inspect(reason)}")
+          {:reply, {:error, %{"error" => "Key request not sent"}}, socket}
       end
   end
 

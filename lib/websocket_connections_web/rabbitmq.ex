@@ -2,6 +2,7 @@ defmodule WebsocketConnectionsWeb.RabbitMq do
   use GenServer
   alias AMQP.{Connection, Channel, Exchange}
   require Logger
+  
   @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)

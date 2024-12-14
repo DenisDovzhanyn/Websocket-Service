@@ -8,6 +8,7 @@ defmodule WebsocketConnectionsWeb.Router do
   scope "/api", WebsocketConnectionsWeb do
     pipe_through :api
     post "/send_to_client", MessageController, :send_to_user
+    post "/request_chat_key", MessageController, :send_request_to_user
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
